@@ -5,7 +5,7 @@ from Species import Species
 
 #TODO: Add spells given by species, like Tiefling's Hellish Rebuke and Thaumaturgy
 class SpellList:
-    def __init__(self, char_class: str, spell_list: list=None, file_path: str='dnd-spells.csv'):
+    def __init__(self, char_class: str, spell_list: set=None, file_path: str='dnd-spells.csv'):
         self.full_spell_list = self.create_full_spell_list(file_path)
         if not isinstance(char_class, str):
             raise TypeError("Character class must be a string")
@@ -21,7 +21,9 @@ class SpellList:
                     raise ValueError(f"Spell '{spell}' not found in the full spell list")
                 spell_list.append(Spell(spell['name'], spell['level'], spell['casting_time'], spell['range'], spell['duration']))
             else:
-                spell_list.append(spell)
+                print(f"Adding spell: {spell.get_name()}")
+                spell_list.add(spell)
+                print(len(spell_list))
 
     def create_full_spell_list(self, file_path: str='dnd-spells.csv'):
         # Create a dictionary to hold spells for each class
@@ -40,9 +42,9 @@ class SpellList:
                 for char_class in classes.split(','):
                     char_class = char_class.strip()
                     if char_class not in spell_list:
-                        spell_list[char_class] = []
+                        spell_list[char_class] = set()  # Initialize an empty set for the class if it doesn't exist
                     added_spell = Spell(row[0], int(row[2]), row[4], row[5], row[6], row[11]) #name, level, casting time, range, duration, description
-                    spell_list[char_class].append(added_spell) 
+                    spell_list[char_class].add(added_spell) 
         return spell_list
 
     def get_spell_list_by_class(self, spell_list: dict, char_class: str):
@@ -73,6 +75,9 @@ class SpellList:
         return self.spell_list
     
     def __str__(self):
-        for spell in self.spell_list:
-            print(spell)
-        pass
+        return_value = ''
+        for spell in self.known_spells:
+            return_value += spell.get_name()
+            if spell != self.known_spells[-1]:
+                return_value += ', '
+        return return_value
