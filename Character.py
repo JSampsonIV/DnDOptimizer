@@ -6,7 +6,7 @@ from SpellList import SpellList
 from Spell import Spell
 class Character:
     #ability scores could be a dictionary, but for now, we'll keep them as separate variables
-    def __init__(self, name: str, char_class: str, species: str, level: int = 1, str_score: int = 0, dex: int = 0, con: int = 0, int_score: int = 0, wis: int = 0, cha: int = 0, known_spells: list=None): #strength cannot be abbreviated to the standard str, as that's string, and same for intelligence
+    def __init__(self, name: str, char_class: str, species: str, level: int = 1, str_score: int = 0, dex: int = 0, con: int = 0, int_score: int = 0, wis: int = 0, cha: int = 0, known_spells: set=None): #strength cannot be abbreviated to the standard str, as that's string, and same for intelligence
         self.name = name
         self.character_class = CharacterClass(char_class)
         self.species = Species(species)
@@ -19,10 +19,11 @@ class Character:
         self.wisdom = wis
         self.charisma = cha
         #known spells, if any
-        self.known_spells = []
-        if known_spells is None or known_spells == [] or self.character_class.get_character_class() in set(['Barbarian', 'Fighter', 'Monk', 'Rogue']):
+        if known_spells is None or known_spells == set() or self.character_class.get_character_class() in set(['Barbarian', 'Fighter', 'Monk', 'Rogue']):
             pass  #no spells for these classes, so we don't need to do anything
         else:
+            #initialize known_spells as an empty list
+            self.known_spells = set()  #using a set to avoid duplicates
             #assign known_spells only if it's a list, otherwise raise an error
             if not isinstance(known_spells, list):
                 raise TypeError("Known spells must be a list")
@@ -37,10 +38,10 @@ class Character:
                         spell_list = SpellList(self.character_class.get_character_class())
                         found_spell = spell_list.get_spell_by_name(spell_list.full_spell_list, spell)
                         if found_spell:
-                            self.known_spells.append(found_spell)
+                            self.known_spells.add(found_spell)
                         else:
                             raise ValueError(f"Spell '{spell}' not found in the spell list for class {self.character_class.get_character_class()}")
-                    pass
+                self.known_spells = SpellList(self.character_class.get_character_class(), self.known_spells).spell_list  #convert to a SpellList object to ensure it's valid
                     
     #getters and setters
     def get_name(self):
@@ -64,12 +65,7 @@ class Character:
     def get_charisma(self):
         return self.charisma
     def get_known_spells(self):
-        print_value = ''
-        for spell in self.known_spells:
-            print_value += spell.get_name()
-            if spell != self.known_spells[-1]:
-                print_value += ', '
-        return print_value
+        return self.known_spells
     
     def set_name(self, name: str):
         self.name = name
@@ -103,4 +99,4 @@ class Character:
         str_charisma_mod = str_ability_modifiers['charisma']
         
         # Print the character's information
-        return f"{self.name}\nLevel {self.level} {self.species} {self.character_class}\nStrength: {self.strength} {str_strength_mod} modifier\nDexterity: {self.dexterity} {str_dexterity_mod} modifier\nConstitution: {self.constitution} {str_constitution_mod} modifier\nIntelligence: {self.intelligence}  {str_intelligence_mod} modifier\nWisdom: {self.wisdom} {str_wisdom_mod} modifier\nCharisma: {self.charisma} {str_charisma_mod} modifier\nKnown Spells: {', '.join(self.known_spells) if self.known_spells else 'None'}"
+        return f"{self.name}\nLevel {self.level} {self.species} {self.character_class}\nStrength: {self.strength} {str_strength_mod} modifier\nDexterity: {self.dexterity} {str_dexterity_mod} modifier\nConstitution: {self.constitution} {str_constitution_mod} modifier\nIntelligence: {self.intelligence}  {str_intelligence_mod} modifier\nWisdom: {self.wisdom} {str_wisdom_mod} modifier\nCharisma: {self.charisma} {str_charisma_mod} modifier\nKnown Spells: {self.known_spells if len(self.known_spells) > 0 else 'None'}"
