@@ -15,7 +15,7 @@ class SpellList:
             if not isinstance(spell, Spell):
                 if not isinstance(spell, str):
                     raise TypeError("Spell must be a Spell object or a string")
-                #lookup the spell by name in the full spell list
+                #look up the spell by name in the full spell list
                 spell = self.get_spell_by_name(self.full_spell_list, spell)
                 if spell is None:
                     raise ValueError(f"Spell '{spell}' not found in the full spell list")
@@ -29,10 +29,10 @@ class SpellList:
         # Create a dictionary to hold spells for each class
         # The key is the class name, and the value is a list of spells
         # Each spell is represented as a list of its attributes
-        # [name, level, casting time, range, duration]
+        # [name, level, casting time, range, duration, description]
         
         # Read the CSV file and populate the spell list
-        spell_list = {}
+        spell_list = {} # Dictionary to hold spells by class, where each key is a class and the value is a set of Spell objects
         with open(file_path, 'r', encoding='utf-8-sig') as file:
             reader = csv.reader(file)
             # Read the entire CSV file into a list
@@ -81,3 +81,5 @@ class SpellList:
             if spell != self.known_spells[-1]:
                 return_value += ', '
         return return_value
+    def __repr__(self):
+        return f"SpellList(char_class={self.char_class.get_character_class()}, spell_list={self.spell_list})"
